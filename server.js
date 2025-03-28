@@ -49,7 +49,7 @@ const db = mysql.createConnection({
   
   });
 
-
+  
   //CONSULTAR A LA TABLA GRADOS PARA EL SELECT
   app.get('/grados', (req, res) => {
 
@@ -73,15 +73,12 @@ const db = mysql.createConnection({
   app.post('/agregarMaestro', (req, res) => {
 	let { nombre, email, password } = req.body;
 	
-	// Validar que los campos necesarios estén presentes
 	if (!nombre || !email || !password) {
 	  return res.status(400).json({ error: 'Todos los campos son obligatorios' });
 	}
 	
-	// Crear la consulta SQL para insertar los datos
 	let query = 'INSERT INTO maestros (nombre, email, password) VALUES (?, ?, ?)';
 	
-	// Ejecutar la consulta en la base de datos
 	db.query(query, [nombre, email, password], (err, result) => {
 	  if (err) {
 		console.error('Error al insertar el usuario: ', err);
@@ -138,7 +135,6 @@ const db = mysql.createConnection({
 	let alumno = req.params.idGradoSel;
   
   
-	// Utiliza la variable de los grados sel en la consulta SQL
 	db.query('SELECT * FROM alumnos WHERE  grados_id = ?', [alumno], (err, results) => {
 
 	  if (err) {
@@ -158,17 +154,15 @@ const db = mysql.createConnection({
   app.post('/agregarAsistencia', (req, res) => {
     let { maestros_id, grados_id, alumnos_id, fecha, asistencia, observaciones } = req.body;
 
-    // Verificamos que los campos obligatorios sean proporcionados
     if (!maestros_id || !grados_id || !alumnos_id || !fecha || asistencia === undefined) {
         return res.status(400).json({ error: 'Todos los campos obligatorios (maestros_id, grados_id, alumnos_id, fecha, asistencia) deben ser proporcionados' });
     }
 
-    // Si no se proporciona 'observaciones', podemos asignar un valor por defecto (NULL en este caso)
     if (!observaciones) {
         observaciones = null;
     }
 
-    // Consulta SQL para insertar los datos en la tabla de asistencia
+    
     let query = 'INSERT INTO asistencia (maestros_id, grados_id, alumnos_id, fecha, asistencia, observaciones) VALUES (?, ?, ?, ?, ?, ?)';
 
     db.query(query, [maestros_id, grados_id, alumnos_id, fecha, asistencia, observaciones], (err, result) => {
