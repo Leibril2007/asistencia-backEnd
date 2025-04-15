@@ -38,6 +38,17 @@ const db = mysql.createConnection({
 	database: 'examenLaboratorio2'
   
   })
+
+  const promisePool = mysql.createPool({
+	host: 'localhost',
+	user: 'root',
+	password: 'Patitos.123',
+	database: 'examenLaboratorio2',
+	waitForConnections: true,
+	connectionLimit: 10,
+	queueLimit: 0
+  }).promise();
+  
   
   db.connect((err) => {
   
@@ -48,6 +59,54 @@ const db = mysql.createConnection({
 	console.log('Conexión a la base de datos establecida');
   
   });
+
+  app.post('/login', async (req, res) => {
+
+	try {
+
+		const { email, password } = req.body;
+
+		const [ maestros ] = await promisePool.query(
+			' SELECT id, nombre, email FROM maestros WHERE (nombre = ? OR email = ?) AND password = ?',
+			[email, email, password]
+		);		
+
+/* 		console.log("em",email);
+		console.log("pas",password); */
+
+
+		if (maestros.length == 0){
+			return res.status(401).json({
+
+				success: false,
+				message: 'Correo o contraseña incorrectos'
+
+			});
+		}
+
+		const maestro = maestros[0];
+		res.json({
+
+			success: true,
+			message: 'Inicio de sesión exitoso',
+			user: {
+				id: maestro.id,
+				nombre: maestro.nombre,
+				email: maestro.email
+			}
+		})
+
+
+	} catch (err) {
+		console.error('Error en login:', err);
+		res.status(500).json({
+			success: false,
+			message: 'Error en el servidor'
+		});
+	}
+
+  });
+
 
   
   //CONSULTAR A LA TABLA GRADOS PARA EL SELECT
